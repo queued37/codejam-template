@@ -1,0 +1,16 @@
+var T
+line T
+    var N
+    sepr
+        var V
+        seqn N
+            char abc
+        end
+    end
+end
+
+===
+
+T: [1, 100]
+N: [3, 100]
+V: [0, 10e9]
