@@ -66,7 +66,6 @@ def interpret(inst, limits):
                 output.append(separator[iteration_stack[-1].scope_type])
 
         # DEBUG: print(i, variables, list(map(lambda x: x.count, iteration_stack)))
-
         i += 1
 
     return ''.join(map(str, output))
@@ -78,8 +77,8 @@ def main():
         return 1
 
     file_name = sys.argv[1]
-    if not re.search(r'.fuzz$', file_name):
-        file_name += '.fuzz'
+    if not re.search(re.compile('{}$'.format(FUZZER_PATTERN_EXTENSION)), file_name):
+        file_name += FUZZER_PATTERN_EXTENSION
 
     with open(file_name) as f:
         raw_content = f.readlines()
