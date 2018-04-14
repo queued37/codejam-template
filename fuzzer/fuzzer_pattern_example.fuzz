@@ -1,10 +1,21 @@
 var T
 line T
-    var N
     sepr
-        var V
-        seqn N
+        var N
+        var K
+    end
+    sepr
+        var P
+        sepr P
             char abc
+        end
+        seqn N
+            char .*@
+        end
+    end
+    line N
+        seqn K
+            char OX
         end
     end
 end

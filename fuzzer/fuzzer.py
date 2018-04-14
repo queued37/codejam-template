@@ -63,6 +63,7 @@ def interpret(inst, limits):
                 i = iteration_stack[-1].starting_line
             else:
                 iteration_stack.pop()
+                output.pop()    # Remove duplicate whitespaces
                 output.append(separator[iteration_stack[-1].scope_type])
 
         # DEBUG: print(i, variables, list(map(lambda x: x.count, iteration_stack)))
