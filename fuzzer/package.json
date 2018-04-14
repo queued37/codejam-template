@@ -1,0 +1,14 @@
+{
+  "name": "codejam-fuzzer",
+  "version": "1.0.0",
+  "description": "Simple codejam fuzzer for python",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "queued37",
+  "license": "ISC",
+  "dependencies": {
+    "npm": "^5.8.0",
+    "yargs": "^11.0.0"
+  }
+}
