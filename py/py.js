@@ -11,7 +11,7 @@ const argv = require('yargs')
 const { spawn } = require('child_process');
 
 if (argv.debug) {
-    console.log("debug");    // TODO: Implement debug logging
+    console.log('debug');    // TODO: Implement debug logging
 }
 
 const pythonProcess = spawn('python', ['-u'].concat(argv._));
