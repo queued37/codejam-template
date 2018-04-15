@@ -14,7 +14,7 @@ if (argv.debug) {
     console.log("debug");    // TODO: Implement debug logging
 }
 
-const pythonProcess = spawn('python', argv._);
+const pythonProcess = spawn('python', ['-u'].concat(argv._));
 
 if (argv.fuzz) {
     const fuzzerProcess = spawn('python', ['fuzzer.py']);
