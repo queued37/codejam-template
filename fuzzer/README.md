@@ -1,6 +1,6 @@
 ## Google Code Jam Fuzzer
 
-#### Fuzzer usage
+### Usage
 
 ```bash
 ./fuzzer.py fuzzer_pattern.fuzz
