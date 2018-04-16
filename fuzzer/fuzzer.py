@@ -107,7 +107,7 @@ def interpret(inst, limits):
 
 def main():
     if len(sys.argv) <= 1:
-        print("Usage: ./fuzzer.py fuzzer_pattern.fuzz")
+        print("Usage: ./fuzzer.py fuzzer_pattern{extension}".format(extension=FUZZER_PATTERN_EXTENSION))
         return 1
 
     file_name = sys.argv[1]
