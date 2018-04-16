@@ -1,27 +1,22 @@
 var T
 line T
     sepr
-        var N
-        var K
+        var A
+        var B
     end
-    sepr
-        var P
-        sepr P
-            char abc
-        end
-        seqn N
-            char .*@
-        end
+    sepr B
+        var W
     end
-    line N
-        seqn K
-            char OX
+    line B
+        seqn A
+            char OX.
         end
     end
 end
 
 ===
 
-T: [1, 100]
-N: [3, 100]
-V: [0, 10e9]
+T: [1, 10]
+A: [2, 8]
+B: [2, A+1]    Less than or equal to A
+W: f[0, 1.2e4]

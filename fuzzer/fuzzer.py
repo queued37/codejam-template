@@ -6,16 +6,49 @@ import re
 FUZZER_PATTERN_EXTENSION = '.fuzz'
 
 
+class Limit:
+    number_type = 'int'
+
+    def __init__(self, lower_bound, upper_bound, number_type='int'):
+        # Bounds are stored as string and evaluated as python expression.
+        assert(type(lower_bound) is str)
+        assert(type(upper_bound) is str)
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
+        self.number_type = number_type
+
+    def random(self, defined_variables):
+        # Restrict available functions by passing {'__builtins__': {}} to second argument.
+        globals = defined_variables.copy()
+        globals['__builtins__'] = {}
+        evaluated_lower_bound = eval(self.lower_bound, globals)
+        evaluated_upper_bound = eval(self.upper_bound, globals)
+
+        # Upper-bound exclusive
+        if self.number_type == 'int':
+            return random.randrange(evaluated_lower_bound, evaluated_upper_bound)
+        if self.number_type == 'float':
+            return random.uniform(evaluated_lower_bound, evaluated_upper_bound)
+
+
 def parse(raw_pattern):
     pattern = [x.rstrip('\n') for x in raw_pattern if x != '\n']
     separator = pattern.index('===')
 
-    raw_instruction = pattern[:separator]
-    instruction = [x.lstrip().split() for x in raw_instruction]
+    raw_instructions = pattern[:separator]
+    raw_limits = pattern[separator+1:]
 
-    limits = pattern[separator+1:]
+    # Format instructions
+    instructions = [x.lstrip().split() for x in raw_instructions]
 
-    return instruction, limits
+    # Parse limits
+    limits = {}
+    for limit_string in raw_limits:
+        match = re.match(r'(\w+): (f?)\[([^,\[\]]+), ([^,\[\]]+)\]', limit_string)
+        number_type = 'float' if match.group(2) == 'f' else 'int'
+        limits[match.group(1)] = Limit(match.group(3), match.group(4), number_type)
+
+    return instructions, limits
 
 
 class Iteration:
@@ -44,7 +77,7 @@ def interpret(inst, limits):
     while i < len(inst):
         if inst[i][0] == 'var':
             var_name = inst[i][1]
-            variables[var_name] = random.randint(2, 8)      # TODO: Apply limits
+            variables[var_name] = limits[var_name].random(variables)
             output.append(variables[var_name])
             output.append(separator[iteration_stack[-1].scope_type])
         if inst[i][0] == 'char':

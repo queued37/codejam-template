@@ -6,27 +6,21 @@
 ./fuzzer.py fuzzer_pattern.fuzz
 ```
 
-Example input (grammar is likely to be changed):
+Example input:
 
 ```
 var T
 line T
     sepr
-        var N
-        var K
+        var A
+        var B
     end
-    sepr
-        var P
-        sepr P
-            char abc
-        end
-        seqn N
-            char .*@
-        end
+    sepr B
+        var W
     end
-    line N
-        seqn K
-            char OX
+    line B
+        seqn A
+            char OX.
         end
     end
 end
@@ -34,36 +28,29 @@ end
 ===
 
 T: [1, 10]
-N: [3, 10]
-P: [3, 10]
+A: [2, 8]
+B: [2, A+1]    Less than or equal to A
+W: f[0, 1.2e4]
 ```
 
 Example output:
 
 ```
 3
-6 7
-7 a a c a b a a .*.*@@
-XOXOOXX
-OXXOOOO
-OOXXOXX
-XXOXXXX
-XXXOXXX
-OXOOXXO
-4 3
-8 b c a a a b b b @.**
-XOO
-XXO
-XOX
-OOO
-6 4
-7 a a c a b a a *@.@*.
-OOOO
-XXXX
-OOXO
-OXXX
-XXOX
-OXOX
+7 4
+312.701364071831 5212.049556219669 8240.96098117144 59.6716830584092
+O.OXXOX
+OXXOOXX
+XOOO.O.
+.XO.X..
+2 2
+9300.970019143322 7180.023793773655
+XO
+..
+6 2
+6766.750344540611 960.1983887982794
+XO.X..
+.OXXXO
 ```
 
 #### Remaining tasks to refine fuzzer pattern grammar
@@ -76,6 +63,4 @@ OXOX
         var C
     end
     ```
-- Apply limits
 - Manipulate character appeearance probability
-- Add variable types (int, float)
