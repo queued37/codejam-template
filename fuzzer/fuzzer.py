@@ -80,6 +80,9 @@ def interpret(inst, limits):
             variables[var_name] = limits[var_name].random(variables)
             output.append(variables[var_name])
             output.append(separator[iteration_stack[-1].scope_type])
+        if inst[i][0] == 'hvar':
+            var_name = inst[i][1]
+            variables[var_name] = limits[var_name].random(variables)
         if inst[i][0] == 'char':
             char_list = inst[i][1]
             rand_char = random.randrange(len(char_list))    # TODO: Manipulate probability
