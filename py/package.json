@@ -8,7 +8,9 @@
   "author": "queued37",
   "license": "ISC",
   "dependencies": {
-    "npm": "^5.8.0",
     "yargs": "^11.0.0"
+  },
+  "devDependencies": {
+    "standard": "^11.0.1"
   }
 }
