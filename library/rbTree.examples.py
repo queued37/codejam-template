@@ -15,12 +15,14 @@ rbTree.add(6)
 rbTree.add(7)
 rbTree.add(15)
 
-gen = iter(rbTree)
+gen = iter(rbTree) # Yields rbTree node
 while True:
   try:
+    # You can also use node.data if you bound data to the node.
     print(next(gen).value)
   except StopIteration:
     break
+# Or just print(rbTree)
 
 print('Floor of 12:', rbTree.floor(12))
 print('Ceiling of 12:', rbTree.ceil(12))
@@ -38,14 +40,10 @@ rbTree.add(1, 'kitten')
 rbTree.add(8, 'hamster')
 rbTree.add(5, 'cat')
 rbTree.add(11, 'capybara')
+rbTree.add(10)
 
 gen = iter(rbTree)
-while True:
-  try:
-    nextItem = next(gen)
-    print('{value}: {data}'.format(value=nextItem.value, data=nextItem.data))
-  except StopIteration:
-    break
+print(rbTree)
 
 print('Test done.')
 print()

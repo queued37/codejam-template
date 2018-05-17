@@ -66,6 +66,21 @@ class RedBlackTree:
             'R': self._left_rotation
         }
 
+    def __str__(self):
+        output = []
+        iterator = iter(self)
+        while True:
+            try:
+                nextItem = next(iterator)
+                if nextItem.data is None:
+                    output.append(str(nextItem.value))
+                else:
+                    output.append('{value}: {data}'.format(value=nextItem.value, data=nextItem.data))
+            except StopIteration:
+                break
+        
+        return '\n'.join(output)
+
     def __iter__(self):
         if not self.root:
             return list()
