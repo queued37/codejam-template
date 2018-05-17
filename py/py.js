@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-
-const FUZZER_PATTERN_EXTENSION = '.fuzz'
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
 
 const argv = require('yargs')
     .boolean(['fuzz', 'debug'])
@@ -10,19 +11,38 @@ const argv = require('yargs')
     .describe('d', 'Enable debug logging')
     .argv;
 
-const { spawn } = require('child_process');
-const path = require('path');
+const FUZZER_PATTERN_EXTENSION = '.fuzz';
+const DEBUG_DIR = './py_debug';
+
+const restArgs = argv._.slice();
+// Assume last argument of `py` is the python script file name.
+const scriptPath = restArgs[restArgs.length - 1];
 
 if (argv.debug) {
-    console.log('debug');    // TODO: Implement debug logging
+    scriptDir = path.dirname(scriptPath);
+    scriptName = path.basename(scriptPath);
+    scriptDebugDir = path.join(scriptDir, DEBUG_DIR);
+    scriptDebugName = path.join(scriptDir, DEBUG_DIR, scriptName);
+
+    // Create directory for debug code
+    if (!fs.existsSync(scriptDebugDir)){
+        fs.mkdirSync(scriptDebugDir);
+    }
+    
+    const code = fs.readFileSync(scriptPath, 'utf-8');
+    const replacedCode = code.replace(/##\s*/g, '');
+
+    fs.writeFileSync(scriptDebugName, replacedCode, 'utf-8');
+
+    // Change script path to run
+    restArgs[restArgs.length - 1] = scriptDebugName;
 }
 
-const pythonProcess = spawn('python', ['-u'].concat(argv._));
+const pythonProcess = spawn('python', ['-u'].concat(restArgs));
 
 if (argv.fuzz) {
-    // Assume last argument of `py` is the python script file name.
     // The fuzzer pattern file name must be the same as the python script file name.
-    const patternName = argv._[argv._.length-1].replace(/\.py/, '.fuzz');
+    const patternName = scriptPath.replace(/\.py/, '.fuzz');
     const fuzzerProcess = spawn('python', [path.join(__dirname, '../fuzzer/fuzzer.py'), patternName]);
     fuzzerProcess.stdout.pipe(pythonProcess.stdin)
 } else {
