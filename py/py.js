@@ -125,7 +125,7 @@ function runPython () {
 
   pythonProcess.on('close', (code) => {
     inform(`Child process exited with code ${code}.`)
-    process.stdin.end()
+    process.stdin.unref()
   })
 }
 
