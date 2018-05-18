@@ -25,6 +25,12 @@ const DEBUG_SUFFIX = '.debug'
 const scriptPath = argv._[argv._.length - 1]
 const restArgs = argv._.slice(0, -1)
 
+function inform (message) {
+  const cyanStart = '\x1b[36m'
+  const cyanEnd = '\x1b[0m'
+  console.error(`${cyanStart}INFO: ${message}${cyanEnd}`)
+}
+
 function error (message) {
   const redStart = '\x1b[31m'
   const redEnd = '\x1b[0m'
@@ -76,6 +82,7 @@ function compile (scriptPath, debug, save) {
     // Save at destination
     fs.writeFileSync(destination, code, 'utf-8')
     savedPath = destination
+    inform(`Saved at ${savedPath}.`)
   }
 
   return {compiledCode: code, savedPath}
@@ -111,6 +118,6 @@ pythonProcess.stderr.on('data', (data) => {
 })
 
 pythonProcess.on('close', (code) => {
-  console.log(`\nchild process exited with code ${code}`)
+    inform(`Child process exited with code ${code}.`)
   process.stdin.end()
 })
