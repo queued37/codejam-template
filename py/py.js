@@ -25,6 +25,13 @@ const DEBUG_SUFFIX = '.debug'
 const scriptPath = argv._[argv._.length - 1]
 const restArgs = argv._.slice(0, -1)
 
+function error (message) {
+  const redStart = '\x1b[31m'
+  const redEnd = '\x1b[0m'
+  const beep = '\x07'
+  console.error(`${redStart}ERROR: ${message}${redEnd}${beep}`)
+}
+
 function compile (scriptPath, debug, save) {
   /*** Compile ***/
   let code = fs.readFileSync(scriptPath, 'utf-8')
@@ -35,8 +42,7 @@ function compile (scriptPath, debug, save) {
     libName = libName.replace(/\.py$/, '') + '.py'
     const libPath = path.join(libDir, libName)
     if (!fs.existsSync(libPath)) {
-      console.error(`Error: library '${libName}' not found. ` +
-        'Ignoring include statement.')
+      error(`Error: library '${libName}' not found. Ignoring include statement.`)
       return ''
     }
     return fs.readFileSync(libPath, 'utf-8')
@@ -55,8 +61,7 @@ function compile (scriptPath, debug, save) {
     let saveDir = (typeof save === 'string') ? save : originalDir
     
     if (!fs.existsSync(saveDir)) {
-      console.error('Error: Save directory not found. ' +
-        'Falling back to the directory of the script.')
+      error('Error: Save directory not found. Saving at the directory of the script.')
       saveDir = originalDir
     }
 
