@@ -18,7 +18,6 @@ const argv = require('yargs')
   .argv
 
 const FUZZER_PATTERN_EXTENSION = '.fuzz'
-const TEMP_DIR = 'py_build'
 const BUILD_SUFFIX = '.build'
 const DEBUG_SUFFIX = '.debug'
 
@@ -27,14 +26,28 @@ const scriptPath = argv._[argv._.length - 1]
 const restArgs = argv._.slice(0, -1)
 
 function compile (scriptPath, debug, save) {
-  // Compile
+  /*** Compile ***/
   let code = fs.readFileSync(scriptPath, 'utf-8')
-  // TODO: Implement include comment
+
+  // Include comment
+  const libDir = path.resolve(__dirname, '../library')
+  code = code.replace(/## include (.+)/g, (_, libName) => {
+    libName = libName.replace(/\.py$/, '') + '.py'
+    const libPath = path.join(libDir, libName)
+    if (!fs.existsSync(libPath)) {
+      console.error(`Error: library '${libName}' not found. ` +
+        'Ignoring include statement.')
+      return ''
+    }
+    return fs.readFileSync(libPath, 'utf-8')
+  })
+
+  // Debug comment
   if (debug) {
     code = code.replace(/##\s*/g, '')
   }
 
-  // Save
+  /*** Save ***/
   let savedPath = undefined
   if (save) {
     const originalName = path.basename(scriptPath)

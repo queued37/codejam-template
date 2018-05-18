@@ -1,5 +1,12 @@
 # Shamelessly stolen and modified from:
 # https://github.com/Enether/Red-Black-Tree/blob/master/rb_tree_tests.py
+#
+# Global variables/classes:
+# - BLACK
+# - RED
+# - NIL
+# - Node
+# - RedBlackTree
 
 """
 A classic (not left-leaning) Red-Black Tree implementation, supporting addition and deletion.

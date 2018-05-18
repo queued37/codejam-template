@@ -3,6 +3,17 @@
 
 hello = 'Hello, debug mode!'
 ## print(hello)
+
+# library include example
+## include rbTree
+## rbTree = RedBlackTree()
+## rbTree.add(3)
+## rbTree.add(1)
+## rbTree.add(4)
+## rbTree.add(10)
+## rbTree.add(7)
+## print(rbTree)
+
 ## print('Enter any string...')
 
 print(input())
