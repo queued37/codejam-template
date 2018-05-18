@@ -3,17 +3,20 @@ const { spawn } = require('child_process')
 const path = require('path')
 const fs = require('fs')
 
+const clipboardy = require('clipboardy')
 const argv = require('yargs')
-  .boolean(['fuzz', 'debug', 'save-same-dir'])
+  .boolean(['fuzz', 'debug', 'save-same-dir', 'copy'])
   .string(['save'])
   .alias('f', 'fuzz')
   .alias('d', 'debug')
   .alias('s', 'save-same-dir')
   .alias('S', 'save')
+  .alias('c', 'copy')
   .describe('f', 'Use fuzzer')
   .describe('d', 'Enable debug logging')
   .describe('s', 'Save compiled code at the same directory')
   .describe('S', 'Save compiled code')
+  .describe('c', "Copy compiled code and don't run")
   .demandCommand(1)
   .argv
 
@@ -38,7 +41,12 @@ function error (message) {
   console.error(`${redStart}ERROR: ${message}${redEnd}${beep}`)
 }
 
-function compile (scriptPath, debug, save) {
+function compile () {
+  const debug = argv.debug
+  const save = argv.save || argv.s
+  const copy = argv.copy
+  let shouldRun = true
+
   /*** Compile ***/
   let code = fs.readFileSync(scriptPath, 'utf-8')
 
@@ -57,6 +65,13 @@ function compile (scriptPath, debug, save) {
   // Debug comment
   if (debug) {
     code = code.replace(/##\s*/g, '')
+  }
+
+  /*** Copy ***/
+  if (copy) {
+    clipboardy.writeSync(code)
+    inform('Successfully copied compiled code!')
+    shouldRun = false
   }
 
   /*** Save ***/
@@ -85,39 +100,42 @@ function compile (scriptPath, debug, save) {
     inform(`Saved at ${savedPath}.`)
   }
 
-  return {compiledCode: code, savedPath}
+  return {compiledCode: code, savedPath, shouldRun}
 }
 
-const {compiledCode, savedPath} = compile(
-  scriptPath,
-  debug=argv.debug,
-  save=argv.save || argv.s
-)
+function runPython () {
+  const pythonProcess = spawn('python', ['-u'].concat(restArgs))
 
-if (savedPath) restArgs.push(savedPath)
-else restArgs.push('-c', compiledCode)
+  if (argv.fuzz) {
+    // The fuzzer pattern file name must be the same as the python script file name.
+    const patternName = scriptPath.replace(/\.py$/, '') + FUZZER_PATTERN_EXTENSION
+    const fuzzerProcess = spawn('python', [path.join(__dirname, '../fuzzer/fuzzer.py'), patternName])
+    fuzzerProcess.stdout.pipe(pythonProcess.stdin)
+  } else {
+    process.stdin.pipe(pythonProcess.stdin)
+  }
 
-// Run
-const pythonProcess = spawn('python', ['-u'].concat(restArgs))
+  pythonProcess.stdout.on('data', (data) => {
+    process.stdout.write(data.toString('utf8'))
+  })
 
-if (argv.fuzz) {
-  // The fuzzer pattern file name must be the same as the python script file name.
-  const patternName = scriptPath.replace(/\.py$/, '') + FUZZER_PATTERN_EXTENSION
-  const fuzzerProcess = spawn('python', [path.join(__dirname, '../fuzzer/fuzzer.py'), patternName])
-  fuzzerProcess.stdout.pipe(pythonProcess.stdin)
-} else {
-  process.stdin.pipe(pythonProcess.stdin)
-}
+  pythonProcess.stderr.on('data', (data) => {
+    process.stderr.write(`\x1b[31m${data}\x1b[0m`)
+  })
 
-pythonProcess.stdout.on('data', (data) => {
-  process.stdout.write(data.toString('utf8'))
-})
-
-pythonProcess.stderr.on('data', (data) => {
-  process.stderr.write(`\x1b[31m${data}\x1b[0m`)
-})
-
-pythonProcess.on('close', (code) => {
+  pythonProcess.on('close', (code) => {
     inform(`Child process exited with code ${code}.`)
-  process.stdin.end()
-})
+    process.stdin.end()
+  })
+}
+
+function main() {
+  const {compiledCode, savedPath, shouldRun} = compile()
+
+  if (savedPath) restArgs.push(savedPath) // Add the script path to python argument.
+  else restArgs.push('-c', compiledCode) // If the script is not saved, run python from string.
+
+  if (shouldRun) runPython()
+}
+
+main()

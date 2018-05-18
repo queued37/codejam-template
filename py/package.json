@@ -8,6 +8,7 @@
   "author": "queued37",
   "license": "ISC",
   "dependencies": {
+    "clipboardy": "^1.2.3",
     "yargs": "^11.0.0"
   },
   "devDependencies": {
