@@ -12,37 +12,57 @@ const argv = require('yargs')
   .argv
 
 const FUZZER_PATTERN_EXTENSION = '.fuzz'
-const DEBUG_DIR = './py_debug'
+const TEMP_DIR = 'py_build'
+const DEBUG_SUFFIX = '.debug'
 
 const restArgs = argv._.slice()
 // Assume last argument of `py` is the python script file name.
 const scriptPath = restArgs[restArgs.length - 1]
 
-if (argv.debug) {
-  const scriptDir = path.dirname(scriptPath)
-  const scriptName = path.basename(scriptPath)
-  const scriptDebugDir = path.join(scriptDir, DEBUG_DIR)
-  const scriptDebugName = path.join(scriptDir, DEBUG_DIR, scriptName)
-
-  // Create directory for debug code
-  if (!fs.existsSync(scriptDebugDir)) {
-    fs.mkdirSync(scriptDebugDir)
+function compile (scriptPath, save=false) {
+  // Compile
+  let code = fs.readFileSync(scriptPath, 'utf-8')
+  // TODO: Implement include comment
+  if (argv.debug) {
+    code = code.replace(/##\s*/g, '')
   }
 
-  const code = fs.readFileSync(scriptPath, 'utf-8')
-  const replacedCode = code.replace(/##\s*/g, '')
+  // Save
+  if (save) {
+    const originalName = path.basename(scriptPath)
+    const originalDir = path.dirname(scriptPath)
+    const buildDir = path.join(originalDir, TEMP_DIR)
 
-  fs.writeFileSync(scriptDebugName, replacedCode, 'utf-8')
+    const buildName = originalName
+    const buildPath = path.join(buildDir, buildName)
+    const debugName = originalName.replace(/\.py$/, '') + DEBUG_SUFFIX + '.py'
+    const debugPath = path.join(buildDir, debugName)
 
-  // Change script path to run
-  restArgs[restArgs.length - 1] = scriptDebugName
+    let destination = buildPath
+    if (argv.debug) destination = debugPath
+    
+    // Create directory for built code
+    if (!fs.existsSync(buildDir)) {
+      fs.mkdirSync(buildDir)
+    }
+
+    // Save at destination
+    fs.writeFileSync(destination, code, 'utf-8')
+
+    // Change script path to run
+    restArgs[restArgs.length - 1] = destination
+  }
+
+  return code
 }
 
-const pythonProcess = spawn('python', ['-u'].concat(restArgs))
+const compiledCode = compile(scriptPath, save=true)
+
+const pythonProcess = spawn('python', ['-u'].concat(restArgs)) // TODO: Run from string
 
 if (argv.fuzz) {
   // The fuzzer pattern file name must be the same as the python script file name.
-  const patternName = scriptPath.replace(/\.py/, FUZZER_PATTERN_EXTENSION)
+  const patternName = scriptPath.replace(/\.py$/, '') + FUZZER_PATTERN_EXTENSION
   const fuzzerProcess = spawn('python', [path.join(__dirname, '../fuzzer/fuzzer.py'), patternName])
   fuzzerProcess.stdout.pipe(pythonProcess.stdin)
 } else {
