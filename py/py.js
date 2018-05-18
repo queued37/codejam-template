@@ -4,61 +4,76 @@ const path = require('path')
 const fs = require('fs')
 
 const argv = require('yargs')
-  .boolean(['fuzz', 'debug'])
+  .boolean(['fuzz', 'debug', 'save-same-dir'])
+  .string(['save'])
   .alias('f', 'fuzz')
   .alias('d', 'debug')
+  .alias('s', 'save-same-dir')
+  .alias('S', 'save')
   .describe('f', 'Use fuzzer')
   .describe('d', 'Enable debug logging')
+  .describe('s', 'Save compiled code at the same directory')
+  .describe('S', 'Save compiled code')
+  .demandCommand(1)
   .argv
 
 const FUZZER_PATTERN_EXTENSION = '.fuzz'
 const TEMP_DIR = 'py_build'
+const BUILD_SUFFIX = '.build'
 const DEBUG_SUFFIX = '.debug'
 
-const restArgs = argv._.slice()
 // Assume last argument of `py` is the python script file name.
-const scriptPath = restArgs[restArgs.length - 1]
+const scriptPath = argv._[argv._.length - 1]
+const restArgs = argv._.slice(0, -1)
 
-function compile (scriptPath, save=false) {
+function compile (scriptPath, debug, save) {
   // Compile
   let code = fs.readFileSync(scriptPath, 'utf-8')
   // TODO: Implement include comment
-  if (argv.debug) {
+  if (debug) {
     code = code.replace(/##\s*/g, '')
   }
 
   // Save
+  let savedPath = undefined
   if (save) {
     const originalName = path.basename(scriptPath)
     const originalDir = path.dirname(scriptPath)
-    const buildDir = path.join(originalDir, TEMP_DIR)
+    let saveDir = (typeof save === 'string') ? save : originalDir
+    
+    if (!fs.existsSync(saveDir)) {
+      console.error('Error: Save directory not found. ' +
+        'Falling back to the directory of the script.')
+      saveDir = originalDir
+    }
 
-    const buildName = originalName
-    const buildPath = path.join(buildDir, buildName)
+    const buildName = originalName.replace(/\.py$/, '') + BUILD_SUFFIX + '.py'
+    const buildPath = path.join(saveDir, buildName)
     const debugName = originalName.replace(/\.py$/, '') + DEBUG_SUFFIX + '.py'
-    const debugPath = path.join(buildDir, debugName)
+    const debugPath = path.join(saveDir, debugName)
 
     let destination = buildPath
-    if (argv.debug) destination = debugPath
-    
-    // Create directory for built code
-    if (!fs.existsSync(buildDir)) {
-      fs.mkdirSync(buildDir)
-    }
+    if (debug) destination = debugPath
 
     // Save at destination
     fs.writeFileSync(destination, code, 'utf-8')
-
-    // Change script path to run
-    restArgs[restArgs.length - 1] = destination
+    savedPath = destination
   }
 
-  return code
+  return {compiledCode: code, savedPath}
 }
 
-const compiledCode = compile(scriptPath, save=true)
+const {compiledCode, savedPath} = compile(
+  scriptPath,
+  debug=argv.debug,
+  save=argv.save || argv.s
+)
 
-const pythonProcess = spawn('python', ['-u'].concat(restArgs)) // TODO: Run from string
+if (savedPath) restArgs.push(savedPath)
+else restArgs.push('-c', compiledCode)
+
+// Run
+const pythonProcess = spawn('python', ['-u'].concat(restArgs))
 
 if (argv.fuzz) {
   // The fuzzer pattern file name must be the same as the python script file name.
