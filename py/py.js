@@ -52,7 +52,7 @@ function compile () {
 
   // Include comment
   const libDir = path.resolve(__dirname, '../library')
-  code = code.replace(/## include (.+)/g, (_, libName) => {
+  code = code.replace(/##include (.+)/g, (_, libName) => {
     libName = libName.replace(/\.py$/, '') + '.py'
     const libPath = path.join(libDir, libName)
     if (!fs.existsSync(libPath)) {
@@ -64,7 +64,7 @@ function compile () {
 
   // Debug comment
   if (debug) {
-    code = code.replace(/##\s*/g, '')
+    code = code.replace(/## /g, '')
   }
 
   /*** Copy ***/
