@@ -1,0 +1,14 @@
+var test
+line test
+  var A B C
+  seqn C
+    char ABC
+  end
+end
+
+===
+
+test: [3, 4]
+A: [1, 10]
+B: [1, 10]
+C: [1, 10]

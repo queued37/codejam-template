@@ -76,13 +76,16 @@ def interpret(inst, limits):
 
     while i < len(inst):
         if inst[i][0] == 'var':
-            var_name = inst[i][1]
-            variables[var_name] = limits[var_name].random(variables)
-            output.append(variables[var_name])
+            var_names = inst[i][1:]
+            for var_name in var_names:
+                variables[var_name] = limits[var_name].random(variables)
+                output.append(variables[var_name])
+                output.append(separator['sepr'])
             output.append(separator[iteration_stack[-1].scope_type])
         if inst[i][0] == 'hvar':
-            var_name = inst[i][1]
-            variables[var_name] = limits[var_name].random(variables)
+            var_names = inst[i][1:]
+            for var_name in var_names:
+                variables[var_name] = limits[var_name].random(variables)
         if inst[i][0] == 'char':
             char_list = inst[i][1]
             rand_char = random.randrange(len(char_list))    # TODO: Manipulate probability
