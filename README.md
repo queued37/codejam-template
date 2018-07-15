@@ -1,4 +1,4 @@
-# Google Code Jam Template Code & Fuzzer
+# ps-fuzzer
 
 ## Tools
 
@@ -8,17 +8,17 @@
 
 1. Set the environment variable pointing this repository's directory.
     Add this line in your profile (e.g. `.bashrc`):
-   
+
     ```bash
     export GCJ_TEMPLATE_DIR="$HOME/.../codejam-template"
-    ``` 
-    
+    ```
+
 2. Add an alias.
 
     ```bash
     alias fuzzer="$GCJ_TEMPLATE_DIR/fuzzer/fuzzer.py"
     ```
-    
+
 3. Test your code with `fuzzer`.
 
     ```bash
@@ -38,16 +38,16 @@ Simple wrapper around Python with debug comments and fuzzer.
     ```bash
     [ -s "$GCJ_TEMPLATE_DIR/py/py.sh" ] && \. "$GCJ_TEMPLATE_DIR/py/py.sh"
     ```
-    
+
     or source it manually.
-    
+
     ```bash
     . ~/.../codejam-template/py/py.sh
     ```
-    
+
 3. Write some code with debug comment `## (code here)`.
    Debug comment line will be uncommented when `-d` option is present.
-   
+
 4. Debug your code with fuzzer (`-f` option).
 
     ```bash

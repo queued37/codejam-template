@@ -1,4 +1,4 @@
-## Google Code Jam Fuzzer
+## Fuzzer
 
 ### Usage
 
