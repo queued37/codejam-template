@@ -55,12 +55,5 @@ XO.X..
 
 #### Remaining tasks to refine fuzzer pattern grammar
 
-- Add a syntax `var A B C` as an alias for
-    ```
-    sepr
-        var A
-        var B
-        var C
-    end
-    ```
-- Manipulate character appeearance probability
+- Manipulate character appearance probability
+
