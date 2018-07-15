@@ -45,7 +45,7 @@ Simple wrapper around Python with debug comments and fuzzer.
     . ~/.../codejam-template/py/py.sh
     ```
 
-3. Write some code with debug comment `## (code here)`.
+3. Write some code with debug comment (e.g. `## print('hello')`).
    Debug comment line will be uncommented when `-d` option is present.
 
 4. Debug your code with fuzzer (`-f` option).
